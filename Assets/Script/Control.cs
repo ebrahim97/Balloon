@@ -1,19 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Control : MonoBehaviour {
 
-	player playerInstanc;
-	GameObject playerGameObject;
-	public AudioSource sound;
+	Player playerInstanc;
+	AudioSource sound;
 	public float decSpeed=0.2f;
 	bool makeSoundZero;
+
 	// Use this for initialization
 	void Start () {
-		playerGameObject = GameObject.FindGameObjectWithTag ("Player");
-		playerInstanc =	playerGameObject.GetComponent<player> ();
+
+		playerInstanc = GameObject.FindGameObjectWithTag ("Player").GetComponent<Player> ();
 		sound = GetComponent<AudioSource> ();
+
 	}
 	
 	// Update is called once per frame
@@ -23,16 +23,18 @@ public class Control : MonoBehaviour {
 		transform.rotation = Quaternion.Euler(0f, 0f, rot_z - 90);
 		transform.position = playerInstanc.worldPoint2d;
 
-		if (Input.GetMouseButtonDown(0)) {
-			sound.Play ();
-			sound.volume = 1f;
-			makeSoundZero = false;
-		}
+		if (Input.touchCount > 0) {
+			if (Input.GetTouch (0).phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject (playerInstanc.touch.fingerId)) {
+				sound.Play ();
+				sound.volume = 1f;
+				makeSoundZero = false;
+			}
+	
+			if (Input.GetTouch (0).phase == TouchPhase.Ended) {
+				makeSoundZero = true;
 
-		if(Input.GetMouseButtonUp(0)){
-			makeSoundZero = true;
+			}
 		}
-
 		if (makeSoundZero) {
 			sound.volume -= decSpeed * Time.deltaTime;
 
@@ -41,7 +43,5 @@ public class Control : MonoBehaviour {
 				sound.Stop ();
 			}
 		}
-
-	}
-		
+	}		
 }
